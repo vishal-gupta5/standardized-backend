@@ -9,8 +9,13 @@ class ApiError extends Error {
   static badRequest(mesaage = "Bad Request") {
     return new ApiError(400, mesaage);
   }
+
   static unauthorized(mesaage = "unauthorized") {
     return new ApiError(401, mesaage);
+  }
+
+  static conflit(mesaage = "Conflit - User already exists!") {
+    return new ApiError(409, mesaage);
   }
 }
 
