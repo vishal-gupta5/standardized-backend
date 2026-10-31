@@ -7,8 +7,11 @@ import {
   verifyRefreshToken,
 } from "../../common/utils/jwt.utils.js";
 
+// hasToken
 const hasToken = (token) =>
   crypto.createHash("sha256").update(rawToken).digest("hex");
+
+// Register
 
 const register = async ({ name, email, password, role }) => {
   const existing = await User.findOne({ email });
@@ -33,6 +36,8 @@ const register = async ({ name, email, password, role }) => {
   return userObj;
 };
 
+// Login
+
 const login = async ({ email, password }) => {
   const user = await User.findOne({ email }).select("+email");
 
@@ -41,6 +46,12 @@ const login = async ({ email, password }) => {
   }
 
   // Somehow I will check password
+
+  const isMatch = await user.comparePassword(password);
+  if (!isMatch) {
+    throw new ApiError.unauthorized("Invalid email or password!");
+  }
+
   if (!user.isVerified) {
     throw new ApiError.forbedden("Please Verify your email before login!");
   }
@@ -62,6 +73,8 @@ const login = async ({ email, password }) => {
 
   return { user: userObj, accessToken, refreshToken };
 };
+
+// Refresh
 
 const refresh = async (token) => {
   if (!token) {
@@ -88,9 +101,13 @@ const refresh = async (token) => {
   return { accessToken };
 };
 
+// Logout
+
 const logout = async (userId) => {
   await User.findByIdAndUpdate(userId, { refreshToken: null });
 };
+
+// Forget Password
 
 const forgetPassword = async () => {
   const user = await User.findOne({ email });
@@ -104,7 +121,17 @@ const forgetPassword = async () => {
 
   await user.save();
 
-  // TODO: mail bhejna nhi aata hai 
+  // TODO: mail bhejna nhi aata hai
 };
 
-export { register, login, logout, forgetPassword };
+// GetMe
+
+const getMe = async (userId) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new ApiError.noFound("User Not found!");
+  }
+  return user;
+};
+
+export { register, refresh, login, logout, forgetPassword, getMe };
