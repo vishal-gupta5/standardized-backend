@@ -4,6 +4,7 @@ import {
   generateAccessToken,
   generateRefreshToken,
   generateResetToken,
+  verifyRefreshToken,
 } from "../../common/utils/jwt.utils.js";
 
 const hasToken = (token) =>
@@ -33,7 +34,7 @@ const register = async ({ name, email, password, role }) => {
 };
 
 const login = async ({ email, password }) => {
-  const user = await User.findOne({ email }).select("+password");
+  const user = await User.findOne({ email }).select("+email");
 
   if (!user) {
     throw ApiError.unauthorized("Invalid Email or Password!");
@@ -62,4 +63,48 @@ const login = async ({ email, password }) => {
   return { user: userObj, accessToken, refreshToken };
 };
 
-export { register };
+const refresh = async (token) => {
+  if (!token) {
+    throw new ApiError.unauthorized("Refresh token is missing!");
+  }
+
+  const decode = verifyRefreshToken(token);
+
+  const user = await User.findOne(decode.id).select("+refreshToken");
+
+  if (!user) {
+    throw new ApiError.unauthorized("User not found!");
+  }
+
+  if (user.refreshToken !== hasToken(refreshToken)) {
+    throw new ApiError.unauthorized("Invalid Refresh token!");
+  }
+
+  const accessToken = await generateAccessToken({
+    id: user._id,
+    role: user.role,
+  });
+
+  return { accessToken };
+};
+
+const logout = async (userId) => {
+  await User.findByIdAndUpdate(userId, { refreshToken: null });
+};
+
+const forgetPassword = async () => {
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new ApiError.unauthorized("No email with this email!");
+  }
+
+  const { rawToken, hashedToken } = generateResetToken();
+  user.resetPasswordToken = hashedToken;
+  user.resetPasswordExpires = Date.now() + 15 * 60 * 1000;
+
+  await user.save();
+
+  // TODO: mail bhejna nhi aata hai 
+};
+
+export { register, login, logout, forgetPassword };

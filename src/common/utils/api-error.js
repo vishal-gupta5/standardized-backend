@@ -21,6 +21,10 @@ class ApiError extends Error {
   static forbedden(mesaage = "forbedden") {
     return new ApiError(412, mesaage);
   }
+
+  static noFound(mesaage = "NotFound") {
+    return new ApiError(404, mesaage);
+  }
 }
 
 export default ApiError;

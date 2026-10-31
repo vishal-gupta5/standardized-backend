@@ -15,7 +15,7 @@ const userSchema = mongoose.Schema(
       required: [true, "Email is required!"],
       unique: true,
       select: false,
-      lowercase: true
+      lowercase: true,
     },
     password: {
       type: string,
@@ -36,7 +36,7 @@ const userSchema = mongoose.Schema(
       type: string,
       select: false,
     },
-    refreshtoken: {
+    refreshToken: {
       type: string,
       select: false,
     },
@@ -51,6 +51,12 @@ const userSchema = mongoose.Schema(
   },
   { timestamps: true },
 );
+
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
+});
 
 const User = mongoose.model("User", userSchema);
 export default User;
