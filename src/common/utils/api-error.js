@@ -17,6 +17,10 @@ class ApiError extends Error {
   static conflit(mesaage = "Conflit - User already exists!") {
     return new ApiError(409, mesaage);
   }
+
+  static forbedden(mesaage = "forbedden") {
+    return new ApiError(412, mesaage);
+  }
 }
 
 export default ApiError;
