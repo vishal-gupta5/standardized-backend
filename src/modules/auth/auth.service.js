@@ -124,6 +124,21 @@ const forgetPassword = async () => {
   // TODO: mail bhejna nhi aata hai
 };
 
+
+// verifyEmail
+
+const verifyEmail = async (token) => {
+  const hashedToken = hasToken(token);
+  const user = await User.findOne({ verificationToken: hashedToken }).select(
+    "+verification",
+  );
+
+  // If User not found
+  user.isVerified = true;
+  user.verificationToken = undefined;
+  await user.save();
+};
+
 // GetMe
 
 const getMe = async (userId) => {
@@ -134,4 +149,4 @@ const getMe = async (userId) => {
   return user;
 };
 
-export { register, refresh, login, logout, forgetPassword, getMe };
+export { register, refresh, login, logout, forgetPassword, getMe, verifyEmail };
