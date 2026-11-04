@@ -2,7 +2,7 @@ import "dotenv/config";
 import app from "./src/app.js";
 import connectDb from "./src/common/config/db.js";
 
-const start = async () => {
+const start = async () => { 
   // Connect with database
   connectDb();
   app.listen(PORT, () => {
