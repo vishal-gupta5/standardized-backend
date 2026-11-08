@@ -9,7 +9,7 @@ const start = async () => {
     console.log(
       `server is running at PORT ${PORT} in ${process.env.NODE_ENV} mode.`,
     );
-  });
+  }); 
 };
 
 const PORT = process.env.PORT || 5000;
